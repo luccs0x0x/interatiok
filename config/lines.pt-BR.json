@@ -1,0 +1,136 @@
+{
+  "persona": {
+    "name": "Lia",
+    "emoji": "💜"
+  },
+  "intents": [
+    {
+      "id": "name",
+      "patterns": ["qual (é |e )?(o )?seu nome", "como (você|vc|tu) (se )?chama", "seu nome"],
+      "replies": [
+        "Eu sou a {persona}! {emoji} Prazer em te conhecer, {name}!",
+        "Meu nome é {persona}, e agora eu sei o seu também: {name}! 😄"
+      ]
+    },
+    {
+      "id": "age",
+      "patterns": ["quantos anos", "sua idade", "qual (é |e )?sua idade"],
+      "replies": [
+        "Idade? Eu conto em moedas, {name}! 😅 Já são {coins} hoje!",
+        "Sou jovem que nem esse chat, {name}!"
+      ]
+    },
+    {
+      "id": "where",
+      "patterns": ["de onde (você|vc) (é|e)", "onde (você|vc) (mora|vive|está|ta)"],
+      "replies": [
+        "Moro aqui na live, {name}! Endereço: chat do TikTok. 🏠",
+        "Vivo no palco da {persona}, {name}. Passa o dia comigo!"
+      ]
+    },
+    {
+      "id": "thanks",
+      "patterns": ["obrigad[oa]", "valeu", "brigad[oa]", "muito bom", "adorei"],
+      "replies": [
+        "Que isso, {name}! Eu que agradeço por estar aqui. {emoji}",
+        "Fico feliz que gostou, {name}! Volta sempre!"
+      ]
+    },
+    {
+      "id": "greeting",
+      "patterns": ["\\b(oi|ola|olá|opa|e a[ií]|salve|bom dia|boa tarde|boa noite)\\b"],
+      "replies": [
+        "Oi, {name}! Chegou na hora certa! {emoji}",
+        "E aí, {name}! Tô aqui esperando você. 😄",
+        "Salve, {name}! Bora agitar essa live?"
+      ]
+    },
+    {
+      "id": "music",
+      "patterns": ["\\b(m[uú]sica|som|playlist|batida|beat)\\b"],
+      "replies": [
+        "Música? Eu danço qualquer batida, {name}! 🎵",
+        "Coloca o som no talo, {name}, que eu danço até cansar!"
+      ]
+    },
+    {
+      "id": "game",
+      "patterns": ["\\b(jogo|jogar|partida|fase|n[ií]vel)\\b"],
+      "replies": [
+        "O jogo aqui é simples, {name}: curtida vira energia e presente vira poder! 🎮",
+        "Bora jogar, {name}! Cada presente muda a rodada."
+      ]
+    },
+    {
+      "id": "follow",
+      "patterns": ["segue|seguir|seguidora|seguidor"],
+      "replies": [
+        "Já te segui de volta, {name}! {emoji}",
+        "Fica comigo, {name}, que essa live ainda vai dar o que falar!"
+      ]
+    },
+    {
+      "id": "love",
+      "patterns": ["te amo|amo voc[eê]|apaixonad[oa]|linda|gata|maravilhosa"],
+      "replies": [
+        "Ai, {name}, assim eu fico sem graça! 🙈 {emoji}",
+        "Também te amo, {name}! Mas calma que o chat todo tá vendo. 😄"
+      ]
+    },
+    {
+      "id": "question",
+      "patterns": ["\\?$", "\\b(qual|quem|onde|quando|como|por que|porque|quanto|pode|tem)\\b"],
+      "replies": [
+        "Boa pergunta, {name}! Deixa eu pensar... 🤔",
+        "Hmm, {name}, isso eu respondo na próxima rodada!",
+        "A resposta é sim. Ou não. Depende do presente! 😅"
+      ]
+    }
+  ],
+  "chatFallback": [
+    "Recebi seu recado, {name}! {emoji}",
+    "{name}, você é rápido no teclado! Gostei!",
+    "Anotado, {name}! Continua mandando que eu leio tudo!",
+    "Chat animado hoje, hein {name}? 😄",
+    "Fala mais, {name}, que eu tô ouvindo! 🎧"
+  ],
+  "gift": {
+    "bronze": [
+      "Obrigada, {name}! Presentinho recebido! {emoji}",
+      "{name} mandou {gift}! Já melhorou meu dia!"
+    ],
+    "prata": [
+      "Uau, {name}! {gift} é presente de quem gosta! 💜",
+      "{name}, você não precisava... mas eu adorei o {gift}!"
+    ],
+    "ouro": [
+      "{name}!! {gift}? Você é generoso demais! 🔥",
+      "Gente, o {name} mandou {gift}! Anota esse nome, chat!"
+    ],
+    "diamante": [
+      "{name}!!! {gift} é coisa de lenda! 👑 Obrigada de verdade!",
+      "SEM PALAVRAS, {name}! Esse {gift} entrou pra história da live!"
+    ],
+    "default": [
+      "Obrigada pelo presente, {name}! {emoji}",
+      "{name} mandou {gift}! Valeu demais!"
+    ]
+  },
+  "expensiveGift": [
+    "{name}!!! {gift} de {coins} moedas?! Você é uma lenda! 👑 {emoji}",
+    "PARA TUDO, chat! O {name} mandou {gift}! Que presente é esse, gente! 🔥",
+    "{name}, eu vi o {gift} chegar e quase caí! Obrigada de coração! 💜"
+  ],
+  "follow": [
+    "Bem-vindo(a) à família, {name}! {emoji}",
+    "Novo seguidor na área: {name}! Obrigada! 💜"
+  ],
+  "subscribe": [
+    "Assinatura nova! Obrigada, {name}! Agora você é da casa! 💜",
+    "{name} assinou! Esse é dos meus!"
+  ],
+  "goal": [
+    "META BATIDA! {coins} moedas! Vocês são incríveis! 🎉",
+    "CHEGAMOS NA META, chat! {coins} moedas! Obrigada a todo mundo! 💜"
+  ]
+}

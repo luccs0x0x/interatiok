@@ -1,0 +1,38 @@
+{
+  "name": "tiktok-live-game",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Motor de jogo interativo para TikTok LIVE: doações, metas de curtidas, presentes caros e respostas do personagem no chat.",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prestart": "npm run build",
+    "start": "node dist/src/index.js",
+    "presimulate": "npm run build",
+    "simulate": "node dist/src/index.js --simulate",
+    "test": "npm run build && node dist/test/run.js"
+  },
+  "keywords": [
+    "tiktok",
+    "tiktok-live",
+    "overlay",
+    "chatbot",
+    "live-game"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "tiktok-live-connector": "^2.5.0",
+    "ws": "^8.22.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/ws": "^8.18.1",
+    "typescript": "^5.9.3"
+  }
+}

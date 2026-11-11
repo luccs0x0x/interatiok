@@ -1,0 +1,71 @@
+{
+  "room": {
+    "uniqueId": ""
+  },
+  "coins": {
+    "perDiamond": 2,
+    "overrides": {}
+  },
+  "donation": {
+    "tiers": [
+      { "id": "bronze", "minCoins": 1, "animation": "wave", "intensity": 1 },
+      { "id": "prata", "minCoins": 100, "animation": "cheer", "intensity": 2 },
+      { "id": "ouro", "minCoins": 500, "animation": "dance", "intensity": 3 },
+      { "id": "diamante", "minCoins": 1000, "animation": "celebrate", "intensity": 4 }
+    ],
+    "speakFromCoins": 0,
+    "goal": {
+      "enabled": true,
+      "targetCoins": 5000,
+      "animation": "fireworks",
+      "announce": true
+    }
+  },
+  "expensiveGift": {
+    "enabled": true,
+    "minCoinsExclusive": 1000,
+    "animation": "bow",
+    "intensity": 5,
+    "speak": true
+  },
+  "likes": {
+    "step": 100,
+    "animation": "hype",
+    "intensity": 3,
+    "maxMilestonesPerEvent": 5
+  },
+  "chat": {
+    "windowSize": 10,
+    "minRepliesPerWindow": 4,
+    "maxRepliesPerWindow": 6,
+    "cooldownMs": 2500,
+    "minReplyGapMs": 800,
+    "perUserCooldownMs": 20000,
+    "sameUserFloorMs": 1200,
+    "duplicateWindowMs": 30000,
+    "maxQueue": 30,
+    "minLength": 2,
+    "ignoreCommands": true
+  },
+  "gifts": {
+    "comboFlushMs": 1500
+  },
+  "social": {
+    "announceFollows": false,
+    "announceJoins": false,
+    "followAnimation": "wave",
+    "shareAnimation": "cheer",
+    "subscribeAnimation": "celebrate",
+    "joinAnimation": "idle"
+  },
+  "overlay": {
+    "host": "127.0.0.1",
+    "port": 8787,
+    "stateThrottleMs": 500
+  },
+  "session": {
+    "persist": true,
+    "path": "data/session.json",
+    "saveDebounceMs": 3000
+  }
+}

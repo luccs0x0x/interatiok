@@ -76,6 +76,9 @@ eventos. Ele serve como referência de consumo do WebSocket.
 Os comandos `start` e `simulate` compilam o TypeScript automaticamente antes de
 rodar (o `build` leva ~2 s).
 
+Guia passo a passo de testes (simulador, cada regra via API, WebSocket e live
+real): [`docs/COMO-TESTAR.md`](docs/COMO-TESTAR.md).
+
 Outros comandos:
 
 ```bash

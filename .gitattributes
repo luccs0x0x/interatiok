@@ -1,0 +1,8 @@
+# Mantém LF no repositório e no checkout (evita CRLF em Dockerfile/systemd).
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary

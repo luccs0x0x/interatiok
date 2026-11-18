@@ -30,6 +30,8 @@ export interface GameServerOptions {
   logger: Logger;
   /** Quando definido, POST /api/simulate exige o header `x-sim-token`. */
   simToken?: string;
+  /** false desliga a rota de simulação por completo (recomendado em produção). */
+  allowSimulate?: boolean;
 }
 
 export interface ServerAddress {
@@ -363,6 +365,7 @@ export class GameServer {
   }
 
   private canSimulate(req: IncomingMessage): boolean {
+    if (this.options.allowSimulate === false) return false;
     const token = this.options.simToken;
     if (token) {
       return req.headers['x-sim-token'] === token;

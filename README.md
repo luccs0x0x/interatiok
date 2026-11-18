@@ -104,6 +104,25 @@ Sem chave, a biblioteca tenta uma chave pública compartilhada e costuma esbarra
 em limite de requisições. O `sessionid` (cookie de uma conta logada) é opcional e
 melhora a autenticação — trate como segredo e nunca comite.
 
+### Rodar numa VPS (24/7)
+
+O motor é um serviço headless: pode ficar numa VPS e o OBS/overlay acessa por
+`wss://`. Há `Dockerfile`, `docker-compose.yml`, unit systemd e Caddyfile prontos
+em `deploy/`. Passo a passo completo (HTTPS, firewall, backup, atualização):
+
+**[docs/DEPLOY-VPS.md](docs/DEPLOY-VPS.md)**
+
+```bash
+# na VPS, com Docker
+git clone https://github.com/luccs0x0x/interatiok.git && cd interatiok
+cp .env.example .env && nano .env
+mkdir -p data
+docker compose up -d --build
+```
+
+Em produção, desligue a rota de simulação (`overlay.allowSimulate: false` em
+`config/game.json`) e publique a porta 8787 só no loopback, atrás do Caddy.
+
 ---
 
 ## Configuração (`config/game.json`)
@@ -125,6 +144,7 @@ melhora a autenticação — trate como segredo e nunca comite.
 | `chat.perUserCooldownMs` | `20000` | cooldown por pessoa |
 | `gifts.comboFlushMs` | `1500` | tempo sem novos incrementos para fechar o combo |
 | `overlay.port` | `8787` | porta do HTTP/WebSocket |
+| `overlay.allowSimulate` | `true` | liga `POST /api/simulate` (desligue em produção) |
 | `session.persist` | `true` | retoma totais/ranking após reiniciar |
 
 As falas do personagem ficam em `config/lines.pt-BR.json` (persona, intents,

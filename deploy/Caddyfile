@@ -1,0 +1,16 @@
+# /etc/caddy/Caddyfile
+#
+# Troque game.seudominio.com pelo seu domínio (registro DNS tipo A apontando
+# para o IP da VPS). O Caddy emite o certificado HTTPS automaticamente e faz
+# o proxy do WebSocket (/ws) sem configuração extra.
+
+game.seudominio.com {
+	encode zstd gzip
+
+	# Em produção a simulação fica bloqueada no proxy, além de desligada
+	# no config/game.json (overlay.allowSimulate = false).
+	@sim path /api/simulate
+	respond @sim 403
+
+	reverse_proxy 127.0.0.1:8787
+}

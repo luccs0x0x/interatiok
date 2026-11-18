@@ -21,7 +21,9 @@ interface Harness {
   close(): Promise<void>;
 }
 
-async function startServer(options: { simToken?: string } = {}): Promise<Harness> {
+async function startServer(
+  options: { simToken?: string; allowSimulate?: boolean } = {},
+): Promise<Harness> {
   const config = testConfig({
     overlay: { host: '127.0.0.1', port: 0, stateThrottleMs: 0 },
   });
@@ -45,6 +47,7 @@ async function startServer(options: { simToken?: string } = {}): Promise<Harness
     config,
     logger: createLogger('silent'),
     ...(options.simToken ? { simToken: options.simToken } : {}),
+    ...(options.allowSimulate === false ? { allowSimulate: false } : {}),
   });
 
   const address = await server.listen();
@@ -201,6 +204,20 @@ describe('GameServer', () => {
       });
       assert.equal(allowed.status, 200);
       assert.equal(harness.engine.getState().totals.likes, 100);
+    } finally {
+      await harness.close();
+    }
+  });
+
+  it('desliga /api/simulate quando allowSimulate = false', async () => {
+    const harness = await startServer({ allowSimulate: false });
+    try {
+      const response = await fetch(`${harness.httpUrl}/api/simulate`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ events: [{ type: 'like', count: 100 }] }),
+      });
+      assert.equal(response.status, 403);
     } finally {
       await harness.close();
     }

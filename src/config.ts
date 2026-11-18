@@ -146,6 +146,11 @@ export const GameConfigSchema = z
         port: z.number().int().min(0).max(65_535).default(8787),
         /** Intervalo mínimo entre snapshots de estado no WebSocket. */
         stateThrottleMs: z.number().int().nonnegative().default(500),
+        /**
+         * Habilita POST /api/simulate (teste local). Em VPS/produção, defina
+         * como false: atrás de proxy, toda requisição parece vir do loopback.
+         */
+        allowSimulate: z.boolean().default(true),
       })
       .prefault({}),
 

@@ -61,7 +61,8 @@
   "overlay": {
     "host": "127.0.0.1",
     "port": 8787,
-    "stateThrottleMs": 500
+    "stateThrottleMs": 500,
+    "allowSimulate": true
   },
   "session": {
     "persist": true,

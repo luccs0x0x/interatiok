@@ -1,0 +1,22 @@
+services:
+  game:
+    build: .
+    container_name: tiktok-live-game
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # dentro do contêiner precisa escutar em todas as interfaces;
+      # a porta é publicada apenas no loopback do host (veja ports).
+      HOST: 0.0.0.0
+      PORT: 8787
+      NODE_ENV: production
+    ports:
+      - "127.0.0.1:8787:8787"
+    volumes:
+      - ./data:/app/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

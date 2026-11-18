@@ -137,6 +137,7 @@ async function main(): Promise<void> {
     engine,
     config,
     logger: logger.child('server'),
+    allowSimulate: config.overlay.allowSimulate,
     ...(process.env.SIM_TOKEN ? { simToken: process.env.SIM_TOKEN } : {}),
   });
 

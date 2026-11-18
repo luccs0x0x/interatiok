@@ -80,6 +80,7 @@ export type ActionReason =
   | 'donation'
   | 'expensive_gift'
   | 'like_milestone'
+  | 'like'
   | 'chat'
   | 'follow'
   | 'share'

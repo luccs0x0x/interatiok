@@ -116,6 +116,34 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8787/api/simulate `
 `3000 × 2 = 6000` → passa da meta padrão (5000): fogos + fala, e
 `goal.reached = true` no `/state`.
 
+### Humor ácido: entrada, curtida e doação baixa/alta
+
+Para ver o comentário **na hora**, sem depender da sorte, coloque `chance: 1` e
+`cooldownMs: 0` no bloco que quer testar em `config/game.json`
+(`social.joinComment`, `likes.comment`, `donation.low.comment` ou
+`donation.high.comment`) e reinicie.
+
+```powershell
+$body = @{ events = @(
+  @{ type='join'; user=@{ id='11'; nickname='Juh' } },
+  @{ type='like'; count=7; user=@{ id='12'; nickname='Nanda' } },
+  @{ type='gift'; user=@{ id='13'; nickname='Bia' }; giftName='Rosa'; diamonds=10 },
+  @{ type='gift'; user=@{ id='14'; nickname='Duda' }; giftName='Corações'; diamonds=300 }
+) } | ConvertTo-Json -Depth 5
+
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8787/api/simulate `
+  -ContentType 'application/json' -Body $body
+```
+
+Esperado: quatro `character.say` no console do WebSocket — `reason: "join"`,
+`"like"`, `"donation"` com `data.level: "low"` e `"donation"` com
+`data.level: "high"`. O log do servidor mostra `Entrada:`, `Curtida:` e
+`Doação low/high:`.
+
+Os presentes da faixa do meio (51–499 moedas) **não** falam — só animam.
+Com `chance` menor que 1, o portão pode deixar passar: é o anti-spam
+funcionando.
+
 ### Social e espectadores
 
 ```powershell

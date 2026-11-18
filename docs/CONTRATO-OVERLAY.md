@@ -133,7 +133,7 @@ Sociais usam `reason` = `follow` / `share` / `subscribe` / `join`, sem `data`.
 
 | Campo | Tipo | Descrição |
 | --- | --- | --- |
-| `reason` | string | `chat`, `expensive_gift`, `donation`, `follow`, `subscribe`, `goal` |
+| `reason` | string | `chat`, `expensive_gift`, `donation` (com `data.level`), `join`, `like`, `follow`, `subscribe`, `goal` |
 | `text` | string | fala pronta, em pt-BR (sem markdown) |
 | `emotion` | string | `neutral`, `happy`, `excited`, `grateful`, `surprised`, `playful`, `shy` |
 | `user` | objeto? | interlocutor (no chat, quem mandou a mensagem) |
@@ -158,6 +158,43 @@ Sociais usam `reason` = `follow` / `share` / `subscribe` / `join`, sem `data`.
   "emotion": "surprised",
   "user": { "userId": "1009", "username": "nanda", "nickname": "Nanda" },
   "data": { "coins": 1200, "tier": "diamante", "gift": "Leão", "repeat": 1 }
+}
+```
+
+**Doação baixa/alta** usam `reason: "donation"` e `data.level` (`low` ou
+`high`). Entrada e curtida usam `reason: "join"` / `"like"` e emoção
+`playful`:
+
+```json
+{
+  "kind": "character.say",
+  "reason": "donation",
+  "text": "Bia mandou Rosa: 20 moedas. Dá pra comprar meio café. ☕",
+  "emotion": "playful",
+  "user": { "userId": "1001", "username": "bia_tv", "nickname": "Bia" },
+  "data": { "coins": 20, "tier": "bronze", "gift": "Rosa", "repeat": 1, "level": "low" }
+}
+```
+
+```json
+{
+  "kind": "character.say",
+  "reason": "join",
+  "text": "Juh entrou. Aproveita que a entrada é de graça. 😏",
+  "emotion": "playful",
+  "user": { "userId": "1005", "username": "juh", "nickname": "Juh" },
+  "data": {}
+}
+```
+
+```json
+{
+  "kind": "character.say",
+  "reason": "like",
+  "text": "Nanda curtiu 7 vezes. Calma, coração. 💔",
+  "emotion": "playful",
+  "user": { "userId": "1009", "username": "nanda", "nickname": "Nanda" },
+  "data": { "count": 7, "totalLikes": 743, "milestone": 7 }
 }
 ```
 

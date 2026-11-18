@@ -14,6 +14,26 @@
       { "id": "diamante", "minCoins": 1000, "animation": "celebrate", "intensity": 4 }
     ],
     "speakFromCoins": 0,
+    "low": {
+      "maxCoins": 50,
+      "comment": {
+        "enabled": true,
+        "chance": 0.85,
+        "cooldownMs": 10000,
+        "perUserCooldownMs": 90000,
+        "maxPerMinute": 4
+      }
+    },
+    "high": {
+      "minCoins": 500,
+      "comment": {
+        "enabled": true,
+        "chance": 1,
+        "cooldownMs": 3000,
+        "perUserCooldownMs": 20000,
+        "maxPerMinute": 10
+      }
+    },
     "goal": {
       "enabled": true,
       "targetCoins": 5000,
@@ -32,7 +52,14 @@
     "step": 100,
     "animation": "hype",
     "intensity": 3,
-    "maxMilestonesPerEvent": 5
+    "maxMilestonesPerEvent": 5,
+    "comment": {
+      "enabled": true,
+      "chance": 0.35,
+      "cooldownMs": 20000,
+      "perUserCooldownMs": 120000,
+      "maxPerMinute": 3
+    }
   },
   "chat": {
     "windowSize": 10,
@@ -53,6 +80,13 @@
   "social": {
     "announceFollows": false,
     "announceJoins": false,
+    "joinComment": {
+      "enabled": true,
+      "chance": 0.3,
+      "cooldownMs": 45000,
+      "perUserCooldownMs": 300000,
+      "maxPerMinute": 2
+    },
     "followAnimation": "wave",
     "shareAnimation": "cheer",
     "subscribeAnimation": "celebrate",

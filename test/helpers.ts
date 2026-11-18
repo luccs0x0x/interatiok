@@ -36,6 +36,32 @@ export function viewer(id = '1', nickname = 'Bia'): Viewer {
   return { userId: id, username: `user${id}`, nickname };
 }
 
+function deepMerge(
+  base: Record<string, unknown>,
+  extra: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...base };
+  for (const [key, value] of Object.entries(extra)) {
+    const current = result[key];
+    if (
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      current &&
+      typeof current === 'object' &&
+      !Array.isArray(current)
+    ) {
+      result[key] = deepMerge(
+        current as Record<string, unknown>,
+        value as Record<string, unknown>,
+      );
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
 export interface EngineHarness {
   engine: GameEngine;
   clock: FakeClock;
@@ -49,7 +75,21 @@ export function createEngine(
   configOverrides: Record<string, unknown> = {},
   linesOverrides: Record<string, unknown> = {},
 ): EngineHarness {
-  const config = testConfig(configOverrides);
+  const config = testConfig(
+    deepMerge(
+      {
+        // Por padrão os testes desligam os comentários de humor; cada teste
+        // liga o portão que quer exercitar.
+        social: { joinComment: { enabled: false } },
+        likes: { comment: { enabled: false } },
+        donation: {
+          low: { comment: { enabled: false } },
+          high: { comment: { enabled: false } },
+        },
+      },
+      configOverrides,
+    ),
+  );
   const lines = testLines(linesOverrides);
   const clock = new FakeClock();
   const actions: GameAction[] = [];
@@ -60,6 +100,7 @@ export function createEngine(
     lines,
     clock,
     responder: new CharacterResponder(lines, { rng: () => 0 }),
+    rng: () => 0,
     logger: testLogger,
     onAction: (action) => actions.push(action),
     onState: (state) => states.push(state),

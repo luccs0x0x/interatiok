@@ -269,6 +269,113 @@ describe('GameEngine — social', () => {
   });
 });
 
+describe('GameEngine — humor nas interações', () => {
+  it('comenta a entrada com humor ácido e respeita o cooldown', async () => {
+    const harness = createEngine({
+      social: {
+        joinComment: {
+          enabled: true,
+          chance: 1,
+          cooldownMs: 10_000,
+          perUserCooldownMs: 0,
+          maxPerMinute: 60,
+        },
+      },
+    });
+
+    harness.engine.ingest({ type: 'join', id: 'j1', ts: 1, user: viewer('5', 'Juh') });
+    const first = says(harness.actions);
+    assert.equal(first.length, 1);
+    assert.equal(first[0]?.reason, 'join');
+    assert.match(first[0]?.text ?? '', /Juh/);
+
+    harness.engine.ingest({ type: 'join', id: 'j2', ts: 2, user: viewer('6', 'Rafa') });
+    assert.equal(says(harness.actions).length, 1, 'cooldown global segura a segunda entrada');
+
+    await harness.clock.advance(10_000);
+    harness.engine.ingest({ type: 'join', id: 'j3', ts: 3, user: viewer('7', 'Duda') });
+    assert.equal(says(harness.actions).length, 2);
+  });
+
+  it('comenta curtidas sem esperar o marco de 100', () => {
+    const harness = createEngine({
+      likes: {
+        comment: {
+          enabled: true,
+          chance: 1,
+          cooldownMs: 0,
+          perUserCooldownMs: 0,
+          maxPerMinute: 60,
+        },
+      },
+    });
+
+    harness.engine.ingest(like(10, viewer('9', 'Nanda')));
+
+    assert.equal(acts(harness.actions).length, 0, '10 curtidas não viram marco');
+    const said = says(harness.actions);
+    assert.equal(said.length, 1);
+    assert.equal(said[0]?.reason, 'like');
+    assert.equal(said[0]?.data.count, 10);
+    assert.match(said[0]?.text ?? '', /Nanda/);
+  });
+
+  it('diferencia doação baixa, alta, média e presente caro', async () => {
+    const harness = createEngine({
+      donation: {
+        low: {
+          comment: { enabled: true, chance: 1, cooldownMs: 0, perUserCooldownMs: 0, maxPerMinute: 60 },
+        },
+        high: {
+          comment: { enabled: true, chance: 1, cooldownMs: 0, perUserCooldownMs: 0, maxPerMinute: 60 },
+        },
+      },
+    });
+
+    harness.engine.ingest(gift({ diamonds: 10, user: viewer('1', 'Bia') })); // 20 moedas
+    const low = says(harness.actions);
+    assert.equal(low.length, 1);
+    assert.equal(low[0]?.data.level, 'low');
+    assert.equal(low[0]?.data.coins, 20);
+
+    harness.engine.ingest(gift({ diamonds: 100, user: viewer('2', 'Lucas') })); // 200: meio
+    assert.equal(says(harness.actions).length, 1, 'faixa do meio não fala');
+
+    harness.engine.ingest(gift({ diamonds: 300, user: viewer('3', 'Duda') })); // 600: alta
+    const high = says(harness.actions);
+    assert.equal(high.length, 2);
+    assert.equal(high[1]?.data.level, 'high');
+
+    harness.engine.ingest(gift({ diamonds: 600, user: viewer('4', 'Nanda') })); // 1200: caro
+    await flushMicrotasks();
+
+    const expensive = says(harness.actions);
+    assert.equal(expensive.length, 3);
+    assert.equal(expensive[2]?.reason, 'expensive_gift');
+    assert.notEqual(expensive[2]?.data.level, 'high');
+  });
+
+  it('não repete comentário de doação baixa dentro do cooldown', async () => {
+    const harness = createEngine({
+      donation: {
+        low: {
+          comment: { enabled: true, chance: 1, cooldownMs: 5000, perUserCooldownMs: 0, maxPerMinute: 60 },
+        },
+      },
+    });
+
+    harness.engine.ingest(gift({ diamonds: 10 }));
+    assert.equal(says(harness.actions).length, 1);
+
+    harness.engine.ingest(gift({ diamonds: 10, user: viewer('2', 'Lucas') }));
+    assert.equal(says(harness.actions).length, 1);
+
+    await harness.clock.advance(5000);
+    harness.engine.ingest(gift({ diamonds: 10, user: viewer('3', 'Duda') }));
+    assert.equal(says(harness.actions).length, 2);
+  });
+});
+
 describe('GameEngine — sessão', () => {
   it('restaura totais, ranking e meta a partir do snapshot', () => {
     const first = createEngine({ donation: { goal: { targetCoins: 100 } } });
@@ -284,6 +391,7 @@ describe('GameEngine — sessão', () => {
       lines: first.lines,
       clock: new FakeClock(),
       responder: new CharacterResponder(first.lines, { rng: () => 0 }),
+      rng: () => 0,
       logger: testLogger,
       onAction: () => undefined,
       session: snapshot,

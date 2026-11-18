@@ -92,6 +92,50 @@ describe('CharacterResponder', () => {
   });
 });
 
+describe('CharacterResponder — humor ácido', () => {
+  it('comenta entrada e curtida com o nome da pessoa', () => {
+    const lines = testLines({
+      join: ['Entrou {name}. Finge que é importante.'],
+      like: ['{name} curtiu {count} vezes. Cadê o presente?'],
+    });
+    const responder = new CharacterResponder(lines, { rng: () => 0 });
+
+    const join = responder.commentJoin(viewer('1', 'Bia'), 0);
+    assert.equal(join.text, 'Entrou Bia. Finge que é importante.');
+    assert.equal(join.emotion, 'playful');
+
+    const like = responder.commentLike({
+      user: viewer('2', 'Lucas'),
+      count: 7,
+      totalLikes: 107,
+      milestone: 1,
+    });
+    assert.equal(like.text, 'Lucas curtiu 7 vezes. Cadê o presente?');
+    assert.equal(like.intent, 'like');
+  });
+
+  it('escolhe a faixa baixa ou alta da doação', () => {
+    const lines = testLines({
+      donationLow: ['Doação baixa: {coins} moedas, {name}.'],
+      donationHigh: ['Doação alta: {coins} moedas, {name}!'],
+    });
+    const responder = new CharacterResponder(lines, { rng: () => 0 });
+    const base = {
+      user: viewer('1', 'Bia'),
+      giftName: 'Rosa',
+      coins: 2,
+      tier: 'bronze',
+      repeat: 1,
+    };
+
+    assert.equal(responder.commentDonation({ ...base, level: 'low' }).text, 'Doação baixa: 2 moedas, Bia.');
+    assert.equal(
+      responder.commentDonation({ ...base, level: 'high', coins: 600 }).text,
+      'Doação alta: 600 moedas, Bia!',
+    );
+  });
+});
+
 describe('render/sanitize', () => {
   it('substitui variáveis conhecidas e mantém as desconhecidas', () => {
     assert.equal(render('{name} mandou {gift} para {foo}', { name: 'Bia', gift: 'Rosa' }), 'Bia mandou Rosa para {foo}');

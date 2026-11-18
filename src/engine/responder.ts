@@ -33,6 +33,18 @@ export interface GiftContext {
   repeat: number;
 }
 
+export interface DonationCommentContext extends GiftContext {
+  /** low = doação pequena; high = doação grande (abaixo do presente caro). */
+  level: 'low' | 'high';
+}
+
+export interface LikeCommentContext {
+  user: Viewer;
+  count: number;
+  totalLikes: number;
+  milestone: number;
+}
+
 export interface GoalContext {
   coins: number;
   target: number;
@@ -159,6 +171,53 @@ export class CharacterResponder {
       })),
       emotion: 'surprised',
       intent: 'expensive_gift',
+    };
+  }
+
+  /** Comentário de doação baixa (ácido) ou alta (empolgado). */
+  commentDonation(context: DonationCommentContext): SayContent {
+    const pool = context.level === 'low' ? this.lines.donationLow : this.lines.donationHigh;
+
+    return {
+      text: this.pick(
+        `donation:${context.level}`,
+        pool,
+        this.vars(context.user, {
+          gift: context.giftName,
+          coins: context.coins,
+          tier: context.tier,
+          repeat: context.repeat,
+          level: context.level,
+        }),
+      ),
+      emotion: context.level === 'low' ? 'playful' : 'excited',
+      intent: `donation_${context.level}`,
+    };
+  }
+
+  /** Comentário ácido quando alguém entra na live. */
+  commentJoin(user: Viewer, coins: number): SayContent {
+    return {
+      text: this.pick('social:join', this.lines.join, this.vars(user, { coins })),
+      emotion: 'playful',
+      intent: 'join',
+    };
+  }
+
+  /** Comentário ácido quando alguém curte a live. */
+  commentLike(context: LikeCommentContext): SayContent {
+    return {
+      text: this.pick(
+        'like',
+        this.lines.like,
+        this.vars(context.user, {
+          count: context.count,
+          totalLikes: context.totalLikes,
+          milestone: context.milestone,
+        }),
+      ),
+      emotion: 'playful',
+      intent: 'like',
     };
   }
 

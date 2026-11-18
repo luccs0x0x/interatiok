@@ -28,6 +28,7 @@ import type {
   ViewersEvent,
 } from '../types.js';
 import { ChatScheduler, type ChatRecord } from './chatScheduler.js';
+import { CommentGate } from './commentGate.js';
 import { GiftCombiner, type CombinedGift } from './giftCombiner.js';
 import type { CharacterResponder, SayContent } from './responder.js';
 
@@ -48,6 +49,8 @@ export interface GameEngineOptions {
   logger: Logger;
   onAction: (action: GameAction) => void;
   onState?: (state: GameState) => void;
+  /** Aleatoriedade injetável (testes passam uma sequência fixa). */
+  rng?: () => number;
   /** Restaura totais de uma sessão anterior. */
   session?: PersistedSession | null;
 }
@@ -80,6 +83,10 @@ export class GameEngine {
   private readonly onState: ((state: GameState) => void) | undefined;
   private readonly chat: ChatScheduler;
   private readonly gifts: GiftCombiner;
+  private readonly joinGate: CommentGate;
+  private readonly likeGate: CommentGate;
+  private readonly lowDonationGate: CommentGate;
+  private readonly highDonationGate: CommentGate;
   private readonly leaderboard = new Map<string, LeaderboardEntry>();
 
   private readonly startedAt: number;
@@ -144,6 +151,12 @@ export class GameEngine {
       this.config.gifts.comboFlushMs,
       (gift) => this.registerGift(gift),
     );
+
+    const rng = options.rng ?? Math.random;
+    this.joinGate = new CommentGate(this.config.social.joinComment, this.clock, rng);
+    this.likeGate = new CommentGate(this.config.likes.comment, this.clock, rng);
+    this.lowDonationGate = new CommentGate(this.config.donation.low.comment, this.clock, rng);
+    this.highDonationGate = new CommentGate(this.config.donation.high.comment, this.clock, rng);
 
     if (options.session) this.restore(options.session);
     if (this.config.room.uniqueId) this.connection.room = this.config.room.uniqueId;
@@ -329,7 +342,17 @@ export class GameEngine {
       }
     } else {
       this.emitAct('donation', tier.animation, tier.intensity, gift.user, data);
-      if (donation.speakFromCoins > 0 && coins >= donation.speakFromCoins) {
+
+      const level =
+        coins <= donation.low.maxCoins
+          ? 'low'
+          : coins >= donation.high.minCoins
+            ? 'high'
+            : null;
+
+      if (level) {
+        this.commentDonation(gift, coins, tier, level, data);
+      } else if (donation.speakFromCoins > 0 && coins >= donation.speakFromCoins) {
         void this.safeSay('donation', gift.user, data, () =>
           this.responder.thankGift({
             user: gift.user,
@@ -348,6 +371,32 @@ export class GameEngine {
 
     this.checkGoal();
     this.emitState();
+  }
+
+  /** Comentário de doação baixa (ácido) ou alta (empolgado), com anti-spam. */
+  private commentDonation(
+    gift: CombinedGift,
+    coins: number,
+    tier: DonationTier,
+    level: 'low' | 'high',
+    baseData: ActionData,
+  ): void {
+    const gate = level === 'low' ? this.lowDonationGate : this.highDonationGate;
+    if (!gate.take(gift.user.userId)) return;
+
+    const content = this.responder.commentDonation({
+      user: gift.user,
+      giftName: gift.giftName,
+      coins,
+      tier: tier.id,
+      repeat: gift.repeatCount,
+      level,
+    });
+
+    this.emitSay('donation', content, gift.user, { ...baseData, level });
+    this.logger.info(
+      `Doação ${level} (${coins} moedas) de @${gift.user.username} → "${content.text}"`,
+    );
   }
 
   /** Moedas de UMA unidade do presente (override > diamantes × cotação). */
@@ -414,6 +463,7 @@ export class GameEngine {
       );
     }
 
+    this.commentLike(event);
     this.emitState();
   }
 
@@ -443,10 +493,39 @@ export class GameEngine {
         if (social.announceJoins) {
           this.emitAct('join', social.joinAnimation, 1, event.user, {});
         }
+        this.commentJoin(event.user);
         break;
     }
 
     this.emitState();
+  }
+
+  /** Comentário ácido de entrada, com anti-spam por pessoa e global. */
+  private commentJoin(user: Viewer): void {
+    if (!this.joinGate.take(user.userId)) return;
+
+    const content = this.responder.commentJoin(user, this.totals.coins);
+    this.emitSay('join', content, user, {});
+    this.logger.info(`Entrada: @${user.username} → "${content.text}"`);
+  }
+
+  /** Comentário ácido de curtida, com anti-spam por pessoa e global. */
+  private commentLike(event: LikeEvent): void {
+    if (!this.likeGate.take(event.user.userId)) return;
+
+    const content = this.responder.commentLike({
+      user: event.user,
+      count: event.count,
+      totalLikes: this.totals.likes,
+      milestone: this.likeMilestone,
+    });
+
+    this.emitSay('like', content, event.user, {
+      count: event.count,
+      totalLikes: this.totals.likes,
+      milestone: this.likeMilestone,
+    });
+    this.logger.info(`Curtida: @${event.user.username} (+${event.count}) → "${content.text}"`);
   }
 
   private onViewers(event: ViewersEvent): void {
@@ -526,6 +605,7 @@ export class GameEngine {
     try {
       const content = await producer();
       this.emitSay(reason, content, user, data);
+      this.logger.info(`Fala (${reason}) para @${user.username}: "${content.text}"`);
     } catch (error) {
       this.logger.warn(
         `Falha ao gerar fala (${reason}): ${error instanceof Error ? error.message : String(error)}`,

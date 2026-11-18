@@ -129,6 +129,38 @@
     "Assinatura nova! Obrigada, {name}! Agora você é da casa! 💜",
     "{name} assinou! Esse é dos meus!"
   ],
+  "join": [
+    "{name} entrou. Aproveita que a entrada é de graça. 😏",
+    "Olha quem resolveu aparecer: {name}. O chat não estava pronto.",
+    "{name} chegou. Sem presente, mas com presença. Já é alguma coisa.",
+    "Silêncio, gente: {name} entrou. Finge que é importante. 😅",
+    "{name} na área. O ibope subiu 0,1%.",
+    "Entrou {name}. A live estava tão calma sem você..."
+  ],
+  "like": [
+    "{name} deu {count} curtidas. Tá procurando o botão de presente? 😏",
+    "Curtida do {name} registrada. Emoção zero, mas gratidão.",
+    "{name}, curtida não paga a conta de luz, mas eu aceito.",
+    "Olha o {name} clicando no coração. Um dia descobre o presente.",
+    "{name} curtiu {count} vezes. Calma, coração. 💔",
+    "Obrigada pelas {count} curtidas, {name}. O algoritmo agradece."
+  ],
+  "donationLow": [
+    "{name} mandou {gift}: {coins} moedas. Dá pra comprar meio café. ☕",
+    "Presente do {name} chegou. Pequeno, mas o pensamento... também pequeno. 😏",
+    "{coins} moedas, {name}? Oi? Tô até agora esperando.",
+    "{name}, com {coins} moedas a gente paga o Wi-Fi por três minutos. Valeu!",
+    "Ah, {name}... {gift}. Obrigada pela intenção. A intenção, só.",
+    "{name} mandou {coins} moedas. Guardei no cofrinho das causas perdidas."
+  ],
+  "donationHigh": [
+    "{name} mandou {gift}: {coins} moedas! Agora sim, respeito. 👑",
+    "Gente, o {name} desbloqueou o modo generoso: {coins} moedas!",
+    "{name} pagou o aluguel do meu pedestal. Obrigada! 💜",
+    "Com {coins} moedas, {name} comprou meu silêncio. Brincadeira. Obrigada!",
+    "{name} chegou chegando: {gift} de {coins} moedas! 🔥",
+    "Anota aí, chat: {name} é o tipo de pessoa que resolve."
+  ],
   "goal": [
     "META BATIDA! {coins} moedas! Vocês são incríveis! 🎉",
     "CHEGAMOS NA META, chat! {coins} moedas! Obrigada a todo mundo! 💜"

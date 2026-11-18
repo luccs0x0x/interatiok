@@ -25,6 +25,23 @@ const DEFAULT_TIERS: DonationTier[] = [
   { id: 'diamante', minCoins: 1000, animation: 'celebrate', intensity: 4 },
 ];
 
+/**
+ * Portão de comentários: decide se um evento merece fala (com chance,
+ * cooldown global, cooldown por pessoa e teto por minuto). Evita que entradas,
+ * curtidas e presentes pequenos virem spam.
+ */
+const CommentGateSchema = z
+  .object({
+    enabled: z.boolean().default(true),
+    chance: z.number().min(0).max(1).default(0.5),
+    cooldownMs: z.number().int().nonnegative().default(10_000),
+    perUserCooldownMs: z.number().int().nonnegative().default(60_000),
+    maxPerMinute: z.number().int().positive().default(6),
+  })
+  .prefault({});
+
+export type CommentGateConfig = z.infer<typeof CommentGateSchema>;
+
 export const GameConfigSchema = z
   .object({
     room: z
@@ -55,6 +72,20 @@ export const GameConfigSchema = z
          * 0 desliga (presentes só disparam animação).
          */
         speakFromCoins: z.number().int().nonnegative().default(0),
+        /** Doação baixa: comentário ácido sobre o valor. */
+        low: z
+          .object({
+            maxCoins: z.number().int().nonnegative().default(50),
+            comment: CommentGateSchema,
+          })
+          .prefault({}),
+        /** Doação alta (abaixo do presente caro): comentário empolgado. */
+        high: z
+          .object({
+            minCoins: z.number().int().positive().default(500),
+            comment: CommentGateSchema,
+          })
+          .prefault({}),
         goal: z
           .object({
             enabled: z.boolean().default(true),
@@ -87,6 +118,8 @@ export const GameConfigSchema = z
         intensity: z.number().int().min(1).max(5).default(3),
         /** Teto de animações por mensagem (lotes enormes não viram spam). */
         maxMilestonesPerEvent: z.number().int().positive().default(5),
+        /** Comentário ácido quando alguém curte a live. */
+        comment: CommentGateSchema,
       })
       .prefault({}),
 
@@ -132,6 +165,8 @@ export const GameConfigSchema = z
         announceFollows: z.boolean().default(false),
         /** Entradas na live podem ser barulhentas; desligado por padrão. */
         announceJoins: z.boolean().default(false),
+        /** Comentário ácido de boas-vindas quando alguém entra. */
+        joinComment: CommentGateSchema,
         followAnimation: z.string().min(1).default('wave'),
         shareAnimation: z.string().min(1).default('cheer'),
         subscribeAnimation: z.string().min(1).default('celebrate'),
@@ -200,6 +235,15 @@ export const GameConfigSchema = z
         });
       }
     }
+
+    if (config.donation.low.maxCoins >= config.donation.high.minCoins) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'donation.low.maxCoins precisa ser menor que donation.high.minCoins (a faixa do meio fica só com animação)',
+        path: ['donation', 'high', 'minCoins'],
+      });
+    }
   });
 
 export type GameConfig = z.infer<typeof GameConfigSchema>;
@@ -232,6 +276,20 @@ export const LinesSchema = z.object({
   follow: z.array(z.string().min(1)).default(['Bem-vindo(a), {name}!']),
   subscribe: z.array(z.string().min(1)).default(['Assinatura nova! Obrigada, {name}!']),
   goal: z.array(z.string().min(1)).default(['META BATIDA! {coins} moedas! 🎉']),
+  /** Entrada na live (humor ácido). */
+  join: z.array(z.string().min(1)).default(['{name} entrou. Finge que é importante. 😏']),
+  /** Curtidas na live (humor ácido). */
+  like: z
+    .array(z.string().min(1))
+    .default(['{name} curtiu {count} vezes. Tá procurando o botão de presente? 😏']),
+  /** Doação baixa (humor ácido). */
+  donationLow: z
+    .array(z.string().min(1))
+    .default(['{name} mandou {gift}: {coins} moedas. Dá pra comprar meio café. ☕']),
+  /** Doação alta (empolgação). */
+  donationHigh: z
+    .array(z.string().min(1))
+    .default(['{name} mandou {gift}: {coins} moedas! Agora sim, respeito. 👑']),
 });
 
 export type LinesConfig = z.infer<typeof LinesSchema>;

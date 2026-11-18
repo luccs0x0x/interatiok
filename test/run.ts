@@ -6,6 +6,8 @@
  * processo, com o mesmo runner do `node:test`.
  */
 import './chatScheduler.test.js';
+import './commentGate.test.js';
+import './config.test.js';
 import './giftCombiner.test.js';
 import './gameEngine.test.js';
 import './responder.test.js';

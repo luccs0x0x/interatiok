@@ -18,11 +18,19 @@ feito em qualquer ferramenta — OBS/browser source, Unity, Godot, After Effects
 | Evento da live | Regra | O que o personagem faz |
 | --- | --- | --- |
 | **Doação** (qualquer presente) | valor em moedas define a faixa (`bronze`, `prata`, `ouro`, `diamante`) | animação da faixa + entra no ranking e na meta |
+| **Doação baixa** (até 50 moedas) | comentário com chance/cooldown (`donation.low.comment`) | deboche carinhoso + animação da faixa |
+| **Doação alta** (500+ moedas) | comentário com chance/cooldown (`donation.high.comment`) | empolgação + animação da faixa |
 | **Presente caro** (acima de 1000 moedas) | `moedas > expensiveGift.minCoinsExclusive` | animação épica (`bow`, força 5) **e fala nominal** para quem mandou |
-| **Curtidas** | a cada 100 curtidas acumuladas (`likes.step`) | animação de hype (`hype`), com o número do marco |
+| **Curtidas** | comentário ácido por curtida (`likes.comment`) + ação a cada 100 (`likes.step`) | deboche + animação de hype no marco |
+| **Entrada na live** | comentário ácido (`social.joinComment`) | boas-vindas de deboche, sem exagerar na frequência |
 | **Chat** | cooldown global de 2,5 s + **garantia de 4 respostas a cada 10 mensagens** | balão de fala respondendo à pessoa |
 | **Follow / share / assinatura** | eventos sociais | animação (assinatura também ganha fala) |
 | **Meta de moedas** | total de moedas ≥ `donation.goal.targetCoins` | fogos + fala de comemoração (uma vez por sessão) |
+
+Entradas, curtidas e doações pequenas podem ser muito frequentes, então passam
+por um **portão de fala** (`CommentGate`): chance, cooldown global, cooldown por
+pessoa e teto por minuto. Ajuste em `config/game.json` — ou desligue com
+`"enabled": false`.
 
 Os presentes de **combo** (streak) são agrupados: um presente de 5 unidades vira
 **uma** ação de 5× o valor, não cinco animações.
@@ -82,7 +90,7 @@ real): [`docs/COMO-TESTAR.md`](docs/COMO-TESTAR.md).
 Outros comandos:
 
 ```bash
-npm test                                  # 48 testes (regras, combos, servidor, sessão)
+npm test                                  # 62 testes (regras, humor, combos, servidor)
 npm start -- --simulate --duration=20     # simulação com tempo limitado
 npm start -- --room=@user --port=9000     # outra porta
 ```
@@ -133,9 +141,14 @@ Em produção, desligue a rota de simulação (`overlay.allowSimulate: false` em
 | `coins.overrides` | `{}` | valor fixo por `giftId`, ex.: `{ "5655": 1500 }` |
 | `donation.tiers` | 4 faixas | `minCoins` → `animation` + `intensity` |
 | `donation.speakFromCoins` | `0` | a partir de quantas moedas o personagem também agradece falando (0 = nunca) |
+| `donation.low.maxCoins` | `50` | até esse valor a doação é "baixa" (comentário ácido) |
+| `donation.high.minCoins` | `500` | a partir desse valor a doação é "alta" (comentário empolgado) |
+| `donation.low/high.comment` | — | `enabled`, `chance`, `cooldownMs`, `perUserCooldownMs`, `maxPerMinute` |
 | `donation.goal.targetCoins` | `5000` | meta de moedas da sessão |
 | `expensiveGift.minCoinsExclusive` | `1000` | limite do "presente caro" (estritamente maior) |
 | `likes.step` | `100` | quantas curtidas valem uma ação |
+| `likes.comment` | — | comentário ácido por curtida (mesmos campos do portão) |
+| `social.joinComment` | — | comentário ácido de entrada (mesmos campos do portão) |
 | `chat.minRepliesPerWindow` | `4` | cota mínima por janela |
 | `chat.windowSize` | `10` | tamanho da janela deslizante |
 | `chat.maxRepliesPerWindow` | `6` | teto por janela |
@@ -213,6 +226,8 @@ curl -X POST http://127.0.0.1:8787/api/simulate \
 - **Presentes**: faixas, valor por diamante, override por presente, combo
   agregado, limite exato de 1000 moedas, presente caro + fala.
 - **Curtidas**: acumulado entre lotes, múltiplos marcos, lote gigante.
+- **Humor**: entrada, curtida e doação baixa/alta com portão de fala (chance,
+  cooldown global, por pessoa e teto por minuto).
 - **Social e meta**: follow/share/assinatura, meta única, ranking.
 - **Servidor**: `hello`, transmissão de ações, `/api/simulate` (inclusive 403 com
   token), `ping/pong`.
